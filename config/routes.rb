@@ -1,24 +1,37 @@
 Rails.application.routes.draw do
+  
+  # ユーザー用
+  # URL/user/sign_up...
+  # URL/user/sign_in...
+  devise_for :users,skip:[:passwords],controller:{
+    registrations: "public/registrations",
+    sessions: "public/sessions"
+  }
+  
+  #管理者用
+  # URL/admin/sign_in...
+  devise_for :admins,skip:[:registrations, :passwords],controller:{
+    sessions: "admin/sessions"
+  }
+  
+  
+  namespace :public do
+    root to:"homes#top"
+    
+    resources:users,only:[:show,:edit,:update] 
+    
+    resources:posts do
+      resources:reviews,only:[:new,:create,:destroy]
+      resourse:favorites,only:[:create,:destroy]
+      resourse:bookmarks,only:[:create,:destroy]
+    end
+
+  end
+  
+  
   namespace :admin do
-    get 'reviews/index'
+    resources:users,only:[:index]
+    resouses:reviews,only:[:destroy]
   end
-  namespace :admin do
-    get 'users/index'
-  end
-  namespace :public do
-    get 'bookmarks/index'
-  end
-  namespace :public do
-    get 'users/show'
-    get 'users/edit'
-  end
-  namespace :public do
-    get 'posts/new'
-    get 'posts/index'
-    get 'posts/show'
-    get 'posts/edit'
-  end
-  devise_for :admins
-  devise_for :users
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
 end
